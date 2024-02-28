@@ -3,8 +3,6 @@ const app = express();
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const multer = require("multer");
-const path = require("path");
 const cookieParser = require("cookie-parser");
 const authRoute = require("./routes/auth");
 const userRoute = require("./routes/users");
@@ -36,11 +34,10 @@ const connectDB = async () => {
 //middlewares
 dotenv.config();
 app.use(express.json());
-app.use("/images", express.static(path.join(__dirname, "/images")));
+app.use(cookieParser());
 app.use(
 	cors({ origin: "https://kj-bloggingblitz.vercel.app", credentials: true })
 );
-app.use(cookieParser());
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
@@ -53,6 +50,12 @@ app.use((req, res, next) => {
 		res.status(504).send("Request timed out");
 	});
 	next();
+});
+
+// Log all requests
+app.use((req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.path}`);
+    next();
 });
 
 // Welcome route in JSON format
